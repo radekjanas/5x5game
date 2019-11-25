@@ -4,33 +4,21 @@ import Input from '../Input/Input';
 class InputRow extends Component {
     constructor(props) {
         super(props);
-           
+        
         this.state = {
             word: [],
-            emptyInputs: null
+            emptyInputs: null,
+            letterCounter: 0
         };
+
+        this.emptyInputs = null;
 
         this.changeHandler = this.changeHandler.bind(this);
         this.keyDownHandler = this.keyDownHandler.bind(this);
     }
 
     componentDidMount() {
-        this._row.querySelector('.fifth').classList.add('final');
-    }
-
-    shouldComponentUpdate(nextProps) {
-        // If previous sibling of this row is also row and last input is not empty (word has been entered) then update component
-        if (this._row.classList.contains('active') && this.props.properLetters !== nextProps.properLetters) {
-            console.log(`${this._row.className} will update`);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    componentDidUpdate() {
-        console.log(`${this._row.className} updated`)
-        // If component got letters from previous row
+        //this._row.querySelector('.fifth').classList.add('final');
         if (this.props.properLetters.length !== 0) {
             this.props.properLetters.forEach(function(el) {        // Loop the array with proper letters in order to add them to this row
                 const properElement = this._row.querySelector(`.${el[0]}`);
@@ -44,16 +32,24 @@ class InputRow extends Component {
             }
         }
 
-        // Get empty inputs
-        const empty = this._row.querySelectorAll('input:not(.proper)');
-        console.log(empty);
-        this.setState({
-            emptyInputs: empty
-        });
+        const emptyInputs = this._row.querySelectorAll('input:not(.proper)');
 
-        console.log(this.state);
+            this.setState({
+                emptyInputs: emptyInputs
+            }, () => {
+                //console.log('wolne inputy: ', this.state.emptyInputs);
+                if (this.state.emptyInputs !== 0) {
+                    this.state.emptyInputs[this.state.emptyInputs.length - 1].classList.add('final');
+                    this.state.emptyInputs[0].focus();
+                }
+            });
+        
 
-        //this.state.emptyInputs[0].focus();      // Focus on first free input
+
+        // this.props.setFreeInputs(emptyInputs).then(data => {
+        //     const inputsToNavigate = data;
+        //     inputsToNavigate[0].focus();
+        // });
     }
 
     keyDownHandler(e) {
@@ -64,6 +60,7 @@ class InputRow extends Component {
     }
 
     changeHandler(e) {
+        //console.log(this.state.emptyInputs);
         const letter = e.target.value;      // Letter passed to input
         const newWord = this.state.word;    // After evert onChange get from state actual typed-letters array
 
@@ -79,12 +76,17 @@ class InputRow extends Component {
             newWord[4] = letter
         }
 
+        e.persist();
         this.setState({     // Updating typed word array with new letter after onChange (that's why newWord = this.state.word -> few lines above)
-            word: newWord
-        });
+            word: newWord,
+            letterCounter: this.state.letterCounter + 1
+        }, () => {
 
         if (!e.target.classList.contains('final')) {     // If this is not last input in row, skip to next
-            e.target.nextElementSibling.focus();
+            //e.target.nextElementSibling.focus();
+            console.log(this.state.emptyInputs[this.state.letterCounter]);
+            this.state.emptyInputs[this.state.letterCounter].focus();
+            //console.log(newWord.length);
         } else {        // If it's last input in row - check word (the purpose is to get an array with proper letters in order to pass it to next row)
             const letterArray = [...this.props.word];
             const properLetters = [];       // Array of arrays - each has pair of input class and value
@@ -98,7 +100,7 @@ class InputRow extends Component {
                     const properValue = [allInputs[i].className.split(' ')[0], allInputs[i].value];     // Adding new proper-letter-array and passing it to properLetters array
                     properLetters.push(properValue);
 
-                    this.props.getProperLetters(properLetters);     // Passing proper letters to parent component in order to pass it to next row
+                    this.props.setProperLetters(properLetters);     // Passing proper letters to parent component in order to pass it to next row
                 }
             }
 
@@ -122,14 +124,15 @@ class InputRow extends Component {
                     }
                 }
 
-                this._row.classList.remove('active');       // This row loses its active class
-                this._row.nextElementSibling.classList.add('active');       // Next row gains active class
+                const activeRow = this.props.activeRow + 1
+                this.props.activateRow(activeRow);
             }
         }
+    });
     }
 
     render() {
-        //console.log(this.state);
+        //console.log(this.state.word);
         return (
             <div className={this.props.rowNumber} ref={el => this._row = el}>
                 <Input className="first" onChange={this.changeHandler} onKeyDown={this.keyDownHandler} />
