@@ -16,7 +16,6 @@ Try to guess random 5-letter word - you have 5 chances (that's why it is called 
 ## Developing using
 * ReactJS
 * JavaScript (ES6)
-* CSS
 * SCSS
 * BEM
 * HTML
@@ -25,7 +24,9 @@ Try to guess random 5-letter word - you have 5 chances (that's why it is called 
 Developing
 
 ## To do
-* Passing HTML collection of free inputs in row (excluding proper letters) - needed to navigate to next free input in row
-* Preparing welcome screen
-* Preparing game result screen
-* Styling app, adding animations
+- [x] Passing HTML collection of empty inputs in row (excluding proper letters) - needed to navigate to next empty input in row
+- [ ] Disabling every input except the one which is active (preventing from clicking on other input)
+- [ ] Handle input blur problem - for example when sb goes to other browser tab and returns, then active input should be with focus automatically
+- [ ] Preparing welcome screen
+- [ ] Preparing game result screen
+- [ ] Styling app, adding animations
